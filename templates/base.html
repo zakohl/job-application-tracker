@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Job Application Tracker{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<div class="d-flex">
+    <nav id="sidebar" class="sidebar d-flex flex-column p-3">
+        <a href="{{ url_for('dashboard') }}" class="sidebar-brand d-flex align-items-center mb-4 text-decoration-none">
+            <i class="bi bi-briefcase-fill me-2"></i>
+            <span>JobTracker</span>
+        </a>
+        <ul class="nav flex-column flex-grow-1">
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
+                   href="{{ url_for('dashboard') }}">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'compan' in request.endpoint %}active{% endif %}"
+                   href="{{ url_for('companies') }}">
+                    <i class="bi bi-building me-2"></i> Companies
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.endpoint in ('jobs','add_job','edit_job') %}active{% endif %}"
+                   href="{{ url_for('jobs') }}">
+                    <i class="bi bi-file-earmark-text me-2"></i> Jobs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'application' in request.endpoint %}active{% endif %}"
+                   href="{{ url_for('applications') }}">
+                    <i class="bi bi-send-check me-2"></i> Applications
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'contact' in request.endpoint %}active{% endif %}"
+                   href="{{ url_for('contacts') }}">
+                    <i class="bi bi-people me-2"></i> Contacts
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link {% if request.endpoint == 'job_match' %}active{% endif %}"
+                   href="{{ url_for('job_match') }}">
+                    <i class="bi bi-stars me-2"></i> Job Match
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer small opacity-75">
+            COP4751 &mdash; Course Project
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="main-content flex-grow-1">s
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container-fluid px-4 pt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
