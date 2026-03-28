@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - Job Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <h2 class="page-heading mb-4"><i class="bi bi-grid-1x2-fill me-2"></i>Dashboard</h2>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card card-companies">
+                <div class="stat-icon"><i class="bi bi-building"></i></div>
+                <div class="stat-number">{{ stats.companies }}</div>
+                <div class="stat-label">Companies</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card-jobs">
+                <div class="stat-icon"><i class="bi bi-file-earmark-text"></i></div>
+                <div class="stat-number">{{ stats.jobs }}</div>
+                <div class="stat-label">Jobs</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card-apps">
+                <div class="stat-icon"><i class="bi bi-send-check"></i></div>
+                <div class="stat-number">{{ stats.applications }}</div>
+                <div class="stat-label">Applications</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card card-contacts">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div class="stat-number">{{ stats.contacts }}</div>
+                <div class="stat-label">Contacts</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Applications by Status -->
+        <div class="col-lg-5">
+            <div class="content-card">
+                <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Applications by Status</h5>
+                {% for row in stats.by_status %}
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span>
+                        <span class="badge status-{{ row.status|lower|replace(' ','-') }} me-2">{{ row.status }}</span>
+                    </span>
+                    <span class="fw-semibold">{{ row.count }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>Avg Salary Range</span>
+                    <span>${{ "{:,.0f}".format(stats.avg_salary_min) }} &ndash; ${{ "{:,.0f}".format(stats.avg_salary_max) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="col-lg-7">
+            <div class="content-card">
+                <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Applications</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Job</th>
+                                <th>Company</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in stats.recent %}
+                            <tr>
+                                <td>{{ app.job_title }}</td>
+                                <td>{{ app.company_name }}</td>
+                                <td>{{ app.application_date }}</td>
+                                <td><span class="badge status-{{ app.status|lower|replace(' ','-') }}">{{ app.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
