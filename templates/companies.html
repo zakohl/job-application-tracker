@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Companies - Job Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-heading mb-0"><i class="bi bi-building me-2"></i>Companies</h2>
+        <a href="{{ url_for('add_company') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Company
+        </a>
+    </div>
+
+    <!-- Add/Edit Form -->
+    {% if show_form %}
+    <div class="content-card mb-4" style="max-width: 640px;">
+        <h5 class="mb-3">{{ 'Edit' if company else 'Add' }} Company</h5>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Company Name <span class="text-danger">*</span></label>
+                <input type="text" name="company_name" class="form-control" required
+                       value="{{ company.company_name if company else '' }}">
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Industry</label>
+                    <input type="text" name="industry" class="form-control"
+                           value="{{ company.industry if company else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Website</label>
+                    <input type="text" name="website" class="form-control" placeholder="www.example.com"
+                           value="{{ company.website if company else '' }}">
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control"
+                           value="{{ company.city if company else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">State</label>
+                    <input type="text" name="state" class="form-control"
+                           value="{{ company.state if company else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" rows="3">{{ company.notes if company else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>{{ 'Update' if company else 'Add' }} Company
+                </button>
+                <a href="{{ url_for('companies') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Company List -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Company Name</th>
+                        <th>Industry</th>
+                        <th>Location</th>
+                        <th>Website</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in companies %}
+                    <tr>
+                        <td class="fw-semibold">{{ c.company_name }}</td>
+                        <td>{{ c.industry or '—' }}</td>
+                        <td>{{ c.city }}{% if c.city and c.state %}, {% endif %}{{ c.state }}</td>
+                        <td>
+                            {% if c.website %}
+                            <a href="http://{{ c.website }}" target="_blank" class="text-decoration-none small">{{ c.website }}</a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('edit_company', company_id=c.company_id) }}" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_company', company_id=c.company_id) }}" class="d-inline"
+                                  onsubmit="return confirm('Delete this company? This will also remove associated jobs, applications, and contacts.')">
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not companies %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No companies yet. Click "Add Company" to get started!</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
