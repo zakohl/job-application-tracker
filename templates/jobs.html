@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Jobs - Job Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-heading mb-0"><i class="bi bi-file-earmark-text me-2"></i>Jobs</h2>
+        <a href="{{ url_for('add_job') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Job
+        </a>
+    </div>
+
+    <!-- Add/Edit Form -->
+    {% if show_form %}
+    <div class="content-card mb-4" style="max-width: 640px;">
+        <h5 class="mb-3">{{ 'Edit' if job else 'Add' }} Job</h5>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Company <span class="text-danger">*</span></label>
+                <select name="company_id" class="form-select" required>
+                    <option value="">-- Select Company --</option>
+                    {% for c in companies %}
+                    <option value="{{ c.company_id }}"
+                        {% if job and job.company_id == c.company_id %}selected{% endif %}>
+                        {{ c.company_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Job Title <span class="text-danger">*</span></label>
+                <input type="text" name="job_title" class="form-control" required
+                       value="{{ job.job_title if job else '' }}">
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Job Type</label>
+                    <select name="job_type" class="form-select">
+                        {% for t in ['Full-time','Part-time','Contract','Internship'] %}
+                        <option value="{{ t }}"
+                            {% if job and job.job_type == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date Posted</label>
+                    <input type="date" name="date_posted" class="form-control"
+                           value="{{ job.date_posted if job else '' }}">
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Min Salary ($)</label>
+                    <input type="number" name="salary_min" class="form-control"
+                           value="{{ job.salary_min if job and job.salary_min else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Max Salary ($)</label>
+                    <input type="number" name="salary_max" class="form-control"
+                           value="{{ job.salary_max if job and job.salary_max else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Job URL</label>
+                <input type="text" name="job_url" class="form-control" placeholder="https://..."
+                       value="{{ job.job_url if job else '' }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Required Skills <small class="text-muted">(comma-separated)</small></label>
+                <input type="text" name="required_skills" class="form-control"
+                       placeholder="Python, SQL, Flask"
+                       value="{{ skills_str if skills_str is defined and skills_str else '' }}">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>{{ 'Update' if job else 'Add' }} Job
+                </button>
+                <a href="{{ url_for('jobs') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Job List -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Type</th>
+                        <th>Salary Range</th>
+                        <th>Posted</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for j in jobs %}
+                    <tr>
+                        <td class="fw-semibold">{{ j.job_title }}</td>
+                        <td>{{ j.company_name }}</td>
+                        <td><span class="badge bg-secondary-subtle text-dark">{{ j.job_type or '—' }}</span></td>
+                        <td>
+                            {% if j.salary_min and j.salary_max %}
+                                ${{ "{:,.0f}".format(j.salary_min) }} &ndash; ${{ "{:,.0f}".format(j.salary_max) }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>{{ j.date_posted or '—' }}</td>
+                        <td class="text-end text-nowrap">
+                            <a href="{{ url_for('edit_job', job_id=j.job_id) }}" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_job', job_id=j.job_id) }}" class="d-inline"
+                                  onsubmit="return confirm('Delete this job? Associated applications will also be removed.')">
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not jobs %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">No jobs yet. Click "Add Job" to get started!</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
