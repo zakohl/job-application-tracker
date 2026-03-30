@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Job Match - Job Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <h2 class="page-heading mb-4"><i class="bi bi-stars me-2"></i>Job Match</h2>
+
+    <!-- Skills Input -->
+    <div class="content-card mb-4" style="max-width: 720px;">
+        <h5 class="mb-3">Enter Your Skills</h5>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Skills <small class="text-muted">(comma-separated)</small></label>
+                <input type="text" name="skills" class="form-control form-control-lg"
+                       placeholder="Python, SQL, Flask, Docker, AWS"
+                       value="{{ skills_input }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i> Find Matching Jobs
+            </button>
+        </form>
+    </div>
+
+    <!-- Results -->
+    {% if results is not none %}
+    <div class="content-card">
+        <h5 class="mb-3">
+            Matching Jobs
+            <span class="text-muted small fw-normal">({{ results|length }} result{{ 's' if results|length != 1 }})</span>
+        </h5>
+
+        {% if results %}
+        <div class="row g-3">
+            {% for r in results %}
+            <div class="col-lg-6">
+                <div class="match-card p-3 rounded-3 border
+                    {% if r.match_pct == 100 %}border-success bg-success bg-opacity-10
+                    {% elif r.match_pct >= 50 %}border-warning bg-warning bg-opacity-10
+                    {% else %}border-secondary bg-light{% endif %}">
+
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="fw-semibold">{{ r.job_title }}</div>
+                            <div class="text-muted small">{{ r.company_name }}</div>
+                        </div>
+                        <span class="badge fs-6
+                            {% if r.match_pct == 100 %}bg-success
+                            {% elif r.match_pct >= 50 %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}">
+                            {{ r.match_pct }}%
+                        </span>
+                    </div>
+
+                    {% if r.salary_min and r.salary_max %}
+                    <div class="small text-muted mb-2">
+                        ${{ "{:,.0f}".format(r.salary_min) }} &ndash; ${{ "{:,.0f}".format(r.salary_max) }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Progress bar -->
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar
+                            {% if r.match_pct == 100 %}bg-success
+                            {% elif r.match_pct >= 50 %}bg-warning
+                            {% else %}bg-secondary{% endif %}"
+                             style="width: {{ r.match_pct }}%"></div>
+                    </div>
+
+                    <div class="small">
+                        <span class="text-success"><i class="bi bi-check-circle me-1"></i>{{ r.matched_skills|join(', ') or 'None' }}</span>
+                    </div>
+                    {% if r.missing_skills %}
+                    <div class="small">
+                        <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Missing: {{ r.missing_skills|join(', ') }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-muted small mt-1">{{ r.matched_skills|length }}/{{ r.total_required }} required skills matched</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No jobs with defined skill requirements found. Add required skills to your jobs first.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
